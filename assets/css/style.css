@@ -1,0 +1,44 @@
+@CHARSET "UTF-8";
+
+i {
+	margin-right:3px; 
+	cursor:pointer
+}
+
+/*#tags {
+	width:300px;
+}*/
+
+#jqTree, #jqTree ul {
+	list-style-type: none;
+	margin-left:25px;
+	margin-bottom:5px;
+	padding:0;
+}
+
+span.contextMenu {
+  background: transparent url(/assets/images/contextBackground.png) no-repeat scroll 0 0;
+  font: 15px/2 normal Helvetica,Arial,Verdana,sans-serif;
+  display: none;
+  position: absolute;
+  left: 0px;
+  text-align: left;
+  white-space: nowrap;
+  height: 300px;
+  width: 150px;
+  z-index: 100;
+}
+
+span.contextMenu span {
+  display: inline-block;
+  padding: 15px 0 0 12px;
+}
+
+
+#menu {
+    display: none;
+    position: absolute;
+    padding: 10px;
+    background-color: #ddd;
+    border: 1px solid #000;
+}
