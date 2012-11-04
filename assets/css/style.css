@@ -4,6 +4,27 @@
 /*
 	Plugin styles
 */
+
+#JqttModal input{
+	width:408px;
+}
+#JqttModal textarea{
+	width:400px;
+}
+
+#JqttModal .modal-body strong{
+	display: block;
+	margin-right:100px;
+}
+
+.visible{
+	visibility: visible;
+}
+.hidden{
+	visibility: hidden;
+}
+
+
 i {
 	margin-right:3px; 
 	cursor:pointer
