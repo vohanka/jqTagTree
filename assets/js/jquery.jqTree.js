@@ -5,12 +5,7 @@
 	 * Determinates which method should be called from public methods.
 	 */
 	$.fn.jqTagTree = function(method) {
-		JQTT.contextMenu.start();
-
-		if ( JQTT.publicMethods[method] ) {
-			//makes an array from arguments and takes first element example call: $('elem').jqTagTree();
-			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-		} else if ( typeof method === 'object' || ! method ) {
+		if ( typeof method === 'object' || ! method ) {
 			//if called run with some arguments 
 			return JQTT.publicMethods.run.apply( this, arguments );
 		} else {
@@ -216,6 +211,7 @@
 	JQTT.globVar.ajaxPhpPath = '/php/loadFromDb.php';
 	JQTT.globVar.iconOpen = 'icon-plus';
 	JQTT.globVar.iconClose = 'icon-minus';
+	JQTT.globVar.iconNotOpen = 'icon-ban-circle';
 	JQTT.globVar.menuShown = false;
 
 	/**
@@ -238,6 +234,10 @@
 			if(this.attr('id')== undefined) rootUlTag = '.' + this.attr('class');
 			else rootUlTag = '#' + this.attr('id');
 
+			JQTT.insertHtml.ulStructure(rootUlTag);
+			JQTT.insertHtml.modalStructure();
+			
+			JQTT.contextMenu.start();
 			//Load first level of tree.
 			JQTT.renderTree.loadLeaf(0, rootUlTag);
 
@@ -249,6 +249,28 @@
 		}
 	};
 
+	JQTT.insertHtml={
+		ulStructure: function(rootUlTag){
+			var toBeAdded = "<li style='display: none' class='tagNameTemplate liId'>\n\
+								<div style='position: relative'><a href='#' class='showUls name' ></a> \n\
+								<img src='/assets/images/loading.gif' class='hidden'></div></li>";
+			$(rootUlTag).append(toBeAdded);
+		},
+		modalStructure: function(){
+			var toBeAdded = "<!-- Modal For editing tags-->\n\
+							<div id='jqttModal' class='modal hide fade' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>\n\
+								<div class='modal-header'>\n\
+									<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button><h3 id='modalLabel'></h3>\n\
+								</div>\n\
+								<div class='modal-body'></div>\n\
+								<div class='modal-footer'>\n\
+									<button class='btn' data-dismiss='modal' aria-hidden='true'>Cancel</button>\n\
+									<button class='btn btn-success' id='jqttModalSave' data-dismiss='modal'>Save changes</button>\n\
+								</div>\n\
+							</div>";
+			$(document.body).append(toBeAdded);
+		}
+	}
 
 	/**
 	 * Methods called internaly.
@@ -262,6 +284,8 @@
 				JQTT.globVar.iconOpen = options.iconOpen;
 			if(options.iconClose)
 				JQTT.globVar.iconClose = options.iconClose;
+			if(options.iconNotOpen)
+				JQTT.globVar.iconNotOpen = options.iconNotOpen;
 		},
 
 		/**
@@ -273,7 +297,7 @@
 			if($(this).children('ul').hasClass('treeEmpty')){
 				$(this).children('ul').removeClass('treeEmpty');
 			}
-			if(!$(this).children('div').has('i').length){
+			if($(this).children('div').children('i').hasClass(JQTT.globVar.iconNotOpen)){
 				window.location = $(this).children('div').children('a').attr('href');
 				return false;
 			}
@@ -338,8 +362,8 @@
 					cell.append('<ul></ul>').children('ul').addClass('treeBranch treeEmpty').css('display', 'none').prev().find('a:first').before('<i></i>').prev().addClass(JQTT.globVar.iconOpen).parent().parent().show();
 
 				}else
-					//just shows final record
-					cell.show();
+					//shows "couldn't be opened" sign
+					cell.find('a:first').before('<i></i>').prev().addClass(JQTT.globVar.iconNotOpen).parent().parent().show();
 			}
 			//shows just loaded data
 			$('#'+rootId).children('div').children('i').toggleClass(JQTT.globVar.iconOpen + ' ' + JQTT.globVar.iconClose).parent().nextAll('ul').slideToggle();
