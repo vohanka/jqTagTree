@@ -172,11 +172,21 @@
 			");
 			$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Confirm');
 			$('#jqttModalSave').on('click',function(){
-				//edit data
+					JQTT.contextMenu.action.executeEdit();
+				
 			});
-			$('#jqttModalSave').bind('keydown',function(e){
-				//to be recognised enter
-			})
+			$('#jqttModal').keypress(function(e){
+				if(e.which == 13){
+					JQTT.contextMenu.action.executeEdit();
+				}
+			});
+		},
+		executeEdit : function(){
+			$('#jqttModal').unbind('keypress');
+			$('#jqttModalSave').unbind('click');
+			
+			console.log("Edit confirmed");
+			$('#jqttModal').modal('hide');
 		},
 		/*
 		 *
@@ -190,8 +200,21 @@
 			");
 			$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Add');
 			$('#jqttModalSave').on('click',function(){
-				//add data
+					JQTT.contextMenu.action.executeAdd();
+				
 			});
+			$('#jqttModal').keypress(function(e){
+				if(e.which == 13){
+					JQTT.contextMenu.action.executeAdd();
+				}
+			});
+		},
+		executeAdd : function(){
+			$('#jqttModal').unbind('keypress');
+			$('#jqttModalSave').unbind('click');
+			
+			console.log("Add confirmed");
+			$('#jqttModal').modal('hide');
 		},
 		del : function(id, tagName, uri){
 			$('#jqttModal #modalLabel').text("Delete tag ");
@@ -201,8 +224,21 @@
 			");
 			$('#jqttModalSave').removeClass('btn-success').addClass('btn-danger').text('Delete');
 			$('#jqttModalSave').on('click',function(){
-				//delete data
+					JQTT.contextMenu.action.executeDel();
+				
 			});
+			$('#jqttModal').keypress(function(e){
+				if(e.which == 13){
+					JQTT.contextMenu.action.executeDel();
+				}
+			});
+		},
+		executeDel : function(){
+			$('#jqttModal').unbind('keypress');
+			$('#jqttModalSave').unbind('click');
+			
+			console.log("Del confirmed");
+			$('#jqttModal').modal('hide');
 		}
 	};
 	
@@ -265,7 +301,7 @@
 								<div class='modal-body'></div>\n\
 								<div class='modal-footer'>\n\
 									<button class='btn' data-dismiss='modal' aria-hidden='true'>Cancel</button>\n\
-									<button class='btn btn-success' id='jqttModalSave' data-dismiss='modal'>Save changes</button>\n\
+									<button class='btn btn-success' id='jqttModalSave'>Save changes</button>\n\
 								</div>\n\
 							</div>";
 			$(document.body).append(toBeAdded);
