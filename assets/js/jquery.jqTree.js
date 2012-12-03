@@ -134,7 +134,7 @@
 			
 			switch(action){
 				case 'edit':
-					JQTT.contextMenu.action.edit(id, tagName, uri);
+					JQTT.contextMenu.action.edit.define(id, tagName, uri);
 					break;
 				case 'add':
 					JQTT.contextMenu.action.add(id);
@@ -154,39 +154,99 @@
 	 *Actions executed on click.
 	 */
 	JQTT.contextMenu.action = {
-
-		/**
-		 * Edit tag
-		 * 
-		 * @param id - id of editing element
-		 * @param tagName - tag name of editing element
-		 * @param uri - uri of editing element
-		 */
-		edit : function(id, tagName, uri){
-			
-			$('#jqttModal #modalLabel').text("Edit tag ");
-			$('#jqttModal .modal-body').html(" \n\
+		/**			
+		* Edit tag
+		*/
+		edit : {
+			/**
+			* Sets modal window for edit
+			* 
+			* @param id - id of editing element
+			* @param tagName - tag name of editing element
+			* @param uri - uri of editing element
+			*/
+			define: function(id, tagName, uri){
+				
+				$('#jqttModal #modalLabel').text("Edit tag ");
+				$('#jqttModal .modal-body').html(" \n\
 				<input type='hidden' class='id' value='"+id+"'>\n\
 				<label>Name:</label><input type=text class='name' value='"+ tagName + "'> \n\
 				<label>URI:</label><textarea class='uri'>"+ uri +"</textarea> \n\
 			");
-			$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Confirm');
-			$('#jqttModalSave').on('click',function(){
-					JQTT.contextMenu.action.executeEdit();
+				$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Confirm');
+				$('#jqttModalSave').on('click',function(){
+					JQTT.contextMenu.action.edit.execute(id, tagName, uri);
 				
-			});
-			$('#jqttModal').keypress(function(e){
-				if(e.which == 13){
-					JQTT.contextMenu.action.executeEdit();
-				}
-			});
-		},
-		executeEdit : function(){
-			$('#jqttModal').unbind('keypress');
-			$('#jqttModalSave').unbind('click');
+				});
+				$('#jqttModal').keypress(function(e){
+					if(e.which == 13){
+						JQTT.contextMenu.action.edit.execute(id, tagName, uri);
+					}
+				});
+			},
 			
-			console.log("Edit confirmed");
-			$('#jqttModal').modal('hide');
+			/**
+			*Secures unchanged form and sends data via ajax
+			*
+			* @param id - id of editing element
+			* @param tagName - tag name of editing element
+			* @param uri - uri of editing element
+			*/
+			execute : function(id, tagName, uri){
+				//show loading gif
+				$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+				var newName = $('#jqttModal .modal-body .name').val();
+				var newUri = $('#jqttModal .modal-body .uri').val();
+				var changeData;
+				
+				//if change unbind submiting and make array
+				if(tagName != newName || uri != newUri){
+					$('#jqttModal').unbind('keypress');
+					$('#jqttModalSave').unbind('click');
+					changeData = new Array(id, tagName, newName, uri, newUri);
+				}else{
+					//hide loading gif, show errors
+					$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+					$('#jqttModal #modalLabel').html("Edit tag - <span class=\"text-error headlineNotify\"> Nothing changed!</span>");
+
+					//$('#jqttModal .modal-head .name').before('<span class="text-error"> Nezměněno!</span>');
+					//$('#jqttModal .modal-body .uri').before('<span class="text-error"> Nezměněno!</span>');
+					return;
+				}
+			
+				$.ajax({
+					url: JQTT.globVar.ajaxEditNodePhpPath,
+					data: {
+						data : changeData
+					},
+					dataType : 'JSON',
+					success : function(){ 
+						JQTT.contextMenu.action.edit.redraw(id, newName, newUri);
+						$('#jqttModal').modal('hide');
+						$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+					},
+					error:function(data){
+						$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+						console.log("ERROR updating from context menu!");
+						console.log(data.responseText);
+					}
+				});
+			
+				$('#jqttModal').modal('hide');
+			},
+			
+			/**
+			* After changing data in database change it in browser and make it visible 
+			* @param id - id of editing element
+			* @param tagName - tag name of editing element
+			* @param uri - uri of editing element
+			*/
+			redraw : function(id, name, uri){
+				$('a[data-jqtt-id = '+id+']').attr('href', uri).text(name);
+				$('a[data-jqtt-id = '+id+']').effect("highlight", {
+					color: JQTT.globVar.highlightColor
+				}, 3000);
+			}
 		},
 		/*
 		 *
@@ -200,7 +260,7 @@
 			");
 			$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Add');
 			$('#jqttModalSave').on('click',function(){
-					JQTT.contextMenu.action.executeAdd();
+				JQTT.contextMenu.action.executeAdd();
 				
 			});
 			$('#jqttModal').keypress(function(e){
@@ -224,7 +284,7 @@
 			");
 			$('#jqttModalSave').removeClass('btn-success').addClass('btn-danger').text('Delete');
 			$('#jqttModalSave').on('click',function(){
-					JQTT.contextMenu.action.executeDel();
+				JQTT.contextMenu.action.executeDel();
 				
 			});
 			$('#jqttModal').keypress(function(e){
@@ -244,12 +304,16 @@
 	
 	//Setting of jqTree changeable by user.
 	JQTT.globVar = {};
-	JQTT.globVar.ajaxPhpPath = '/php/loadFromDb.php';
+	JQTT.globVar.ajaxLoadTreePhpPath = '/php/loadFromDb.php';
+	JQTT.globVar.ajaxEditNodePhpPath = '/php/editNode.php';
+	JQTT.globVar.ajaxAddNodePhpPath = '/php/addNode.php';
+	JQTT.globVar.ajaxDelNodePhpPath = '/php/delNode.php';
 	JQTT.globVar.iconOpen = 'icon-plus';
 	JQTT.globVar.iconClose = 'icon-minus';
 	JQTT.globVar.iconNotOpen = 'icon-ban-circle';
 	JQTT.globVar.menuShown = false;
-
+	JQTT.globVar.highlightColor= '#AEFA7F';
+	
 	/**
 	 * Methods callable by user.
 	 */
@@ -300,6 +364,7 @@
 								</div>\n\
 								<div class='modal-body'></div>\n\
 								<div class='modal-footer'>\n\
+									<img src='/assets/images/loading.gif' class='hidden'>\n\
 									<button class='btn' data-dismiss='modal' aria-hidden='true'>Cancel</button>\n\
 									<button class='btn btn-success' id='jqttModalSave'>Save changes</button>\n\
 								</div>\n\
@@ -314,8 +379,8 @@
 	JQTT.renderTree={
 
 		changeSetings: function(options){
-			if(options.ajaxPhpPath)
-				JQTT.globVar.ajaxPhpPath = options.ajaxPhpPath;
+			if(options.ajaxLoadTreePhpPath)
+				JQTT.globVar.ajaxLoadTreePhpPath = options.ajaxLoadTreePhpPath;
 			if(options.iconOpen)
 				JQTT.globVar.iconOpen = options.iconOpen;
 			if(options.iconClose)
@@ -359,13 +424,18 @@
 		 */
 		loadLeaf: function (rootId, rootUlTag) {
 			$.ajax({
-				url: JQTT.globVar.ajaxPhpPath,
+				url: JQTT.globVar.ajaxLoadTreePhpPath,
 				data: {
 					id : rootId
 				},
 				dataType : 'JSON',
 				success : function(data){ 
 					JQTT.renderTree.addLoadedData(data, rootId, rootUlTag);
+				},
+				error: function(data){
+					console.log("---------- Error loading tree ----------");
+					console.log(data.responseText);
+					console.log("----------------------------------------");
 				}
 			});
 		},

@@ -8,10 +8,10 @@ class Db{
 
 	//Vytvoření připojení.
 	private function __construct(){
-		$this->connection = mysql_connect ( HOST, USER, PASS );
+		$this->connection = mysql_connect ( JQTT_HOST, JQTT_USER, JQTT_PASS );
 		if($this->connection != NULL){
 			$this->connected = true;
-			$this->selectDb(DB);
+			$this->selectDb(JQTT_DB);
 			$this->setCharset("utf8");
 		}else {
 			flash(false,"Nelze se připojit do databáze","error");
@@ -48,7 +48,7 @@ class Db{
 	public function query($dotaz){
 		return mysql_query($dotaz);
 	}
-	//Databázová funkce počet řádek
+//Databázová funkce počet řádek
 	public function numRows($dotaz){
 		return mysql_num_rows($dotaz);
 	}

@@ -4,13 +4,18 @@
 /*
 	Plugin styles
 */
+#jqttModal textarea{
+	width: 516px;
+	height: 100px;
+}
+#jqttModal input{
+	width: 258px;
+}
 
-#JqttModal input{
-	width:408px;
+.headlineNotify{
+	font-size : 18px ;
 }
-#JqttModal textarea{
-	width:400px;
-}
+
 
 #JqttModal .modal-body strong{
 	display: block;
