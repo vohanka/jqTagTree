@@ -137,10 +137,10 @@
 					JQTT.contextMenu.action.edit.define(id, tagName, uri);
 					break;
 				case 'add':
-					JQTT.contextMenu.action.add(id);
+					JQTT.contextMenu.action.add.define(id);
 					break;
 				case 'del':
-					JQTT.contextMenu.action.del(id, tagName, uri);
+					JQTT.contextMenu.action.del.define(id, tagName, uri);
 					break;
 			}
 			
@@ -170,7 +170,7 @@
 				$('#jqttModal #modalLabel').text("Edit tag ");
 				$('#jqttModal .modal-body').html(" \n\
 				<input type='hidden' class='id' value='"+id+"'>\n\
-				<label>Name:</label><input type=text class='name' value='"+ tagName + "'> \n\
+				<label>Name:</label><input type='text' class='name' value='"+ tagName + "'> \n\
 				<label>URI:</label><textarea class='uri'>"+ uri +"</textarea> \n\
 			");
 				$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Confirm');
@@ -183,6 +183,7 @@
 						JQTT.contextMenu.action.edit.execute(id, tagName, uri);
 					}
 				});
+				JQTT.contextMenu.action.focusNameInput();
 			},
 			
 			/**
@@ -208,9 +209,6 @@
 					//hide loading gif, show errors
 					$('#jqttModal .modal-footer img').toggleClass('visible hidden');
 					$('#jqttModal #modalLabel').html("Edit tag - <span class=\"text-error headlineNotify\"> Nothing changed!</span>");
-
-					//$('#jqttModal .modal-head .name').before('<span class="text-error"> Nezměněno!</span>');
-					//$('#jqttModal .modal-body .uri').before('<span class="text-error"> Nezměněno!</span>');
 					return;
 				}
 			
@@ -244,75 +242,174 @@
 			redraw : function(id, name, uri){
 				$('a[data-jqtt-id = '+id+']').attr('href', uri).text(name);
 				$('a[data-jqtt-id = '+id+']').effect("highlight", {
-					color: JQTT.globVar.highlightColor
-				}, 3000);
+					color: JQTT.globVar.highlightEditColor
+				}, JQTT.globVar.highlightDuration);
 			}
 		},
+				
 		/*
 		 *
 		 */
-		add : function(id){
-			$('#jqttModal #modalLabel').text("Add tag ");
-			$('#jqttModal .modal-body').html(" \n\
+		add :{
+			
+			define: function(id){
+				$('#jqttModal #modalLabel').text("Add tag ");
+				$('#jqttModal .modal-body').html(" \n\
 				<input type='hidden' class='id' value='"+id+"'>\n\
-				<label>Name:</label><input type=text' class='name'> \n\
+				<label>Name:</label><input type='text' class='name'> \n\
 				<label>URI:</label><textarea class='uri'></textarea> \n\
 			");
-			$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Add');
-			$('#jqttModalSave').on('click',function(){
-				JQTT.contextMenu.action.executeAdd();
+				$('#jqttModalSave').removeClass('btn-danger').addClass('btn-success').text('Add');
+				$('#jqttModalSave').on('click',function(){
+					JQTT.contextMenu.action.add.execute(id);
+				});
+				$('#jqttModal').keypress(function(e){
+					if(e.which == 13){
+						JQTT.contextMenu.action.add.execute(id);
+					}
+				});
+				JQTT.contextMenu.action.focusNameInput();
+			},
+			execute : function(id){
+				//show loading gif
+				$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+				var name = $('#jqttModal .modal-body .name').val();
+				var uri = $('#jqttModal .modal-body .uri').val();
+				var changeData;
 				
-			});
-			$('#jqttModal').keypress(function(e){
-				if(e.which == 13){
-					JQTT.contextMenu.action.executeAdd();
+				//if change unbind submiting and make array
+				if(name != "" && uri != "" && name.length<100 && uri.length<200){
+					$('#jqttModal').unbind('keypress');
+					$('#jqttModalSave').unbind('click');
+					
+					changeData = new Array(id, name, uri, 1);
+				}else{
+					//hide loading gif, show errors
+					$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+					$('#jqttModal #modalLabel').html("Edit tag - <span class=\"text-error headlineNotify\"> Wrong data! Empty or too long.</span>");
+					return;
 				}
-			});
-		},
-		executeAdd : function(){
-			$('#jqttModal').unbind('keypress');
-			$('#jqttModalSave').unbind('click');
 			
-			console.log("Add confirmed");
-			$('#jqttModal').modal('hide');
+				$.ajax({
+					url: JQTT.globVar.ajaxAddNodePhpPath,
+					data: {
+						data : changeData
+					},
+					dataType : 'JSON',
+					success : function(data){ 
+						JQTT.contextMenu.action.add.redraw(id, data.id, name, uri);
+						$('#jqttModal').modal('hide');
+						$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+					},
+					error:function(data){
+						$('#jqttModal .modal-footer img').toggleClass('visible hidden');
+						console.log("ERROR updating from context menu!");
+						console.log(data.responseText);
+					}
+				});
+			
+				$('#jqttModal').modal('hide');
+			},
+			//TODO pridani prvniho zaznamu
+			redraw : function(parentId, id, name, uri){
+				var data = new Array();
+				data["name"] = name;
+				data["id"] = id;
+				data["uri"] = uri;
+
+				var newTag = $(JQTT.globVar.rootUlTag +' .tagNameTemplate').clone(true, true).removeClass('tagNameTemplate');
+				var cell = JQTT.renderTree.changeTagNameTemplate(newTag, data);
+				cell.find('a:first').before('<i></i>').prev().addClass(JQTT.globVar.iconEmpty);
+				cell.css('display','block');
+
+				//works when parent is empty
+				var findCellToHighlight = false;
+				if ($('#'+parentId).find('i:first').hasClass( JQTT.globVar.iconEmpty)) {
+					$('#'+parentId).children('div').after('<ul></ul>').next('ul').addClass('treeBranch');
+					$('#'+parentId).children('ul').append(cell);
+					
+					$('#'+parentId).find('i:first').toggleClass(JQTT.globVar.iconClose+ ' ' + JQTT.globVar.iconEmpty);
+//					$('#'+parentId).next('ul').slideToggle(3000);
+				}
+				//works when parent is closed
+				else if($('#'+parentId).find('i:first').hasClass( JQTT.globVar.iconOpen)){
+					if($('#'+parentId).find('ul:first').hasClass('treeEmpty')){
+						findCellToHighlight = true;
+						JQTT.renderTree.showBranch($('#'+parentId));
+					}else{
+						$('#'+parentId).children('ul').append(cell);
+						$('#'+parentId).find('i:first').toggleClass(JQTT.globVar.iconClose+ ' ' + JQTT.globVar.iconOpen);
+						$('#'+parentId).children('div').nextAll('ul').slideToggle(1000);
+						//TODO highlight after add
+					}
+				}
+				//works when parent is opened
+				else{
+					$('#'+parentId).children('ul').append(cell);					
+				}
+
+				if(!findCellToHighlight){
+					cell.find('a:first').effect("highlight", {
+					color: JQTT.globVar.highlightAddColor
+					}, JQTT.globVar.highlightDuration);
+				}else{
+						JQTT.globVar.highlightId = id;
+				}
+				
+//				$('#'+$(this).attr("id")).children('div').children('i').toggleClass(JQTT.globVar.iconOpen + ' ' + JQTT.globVar.iconClose).parent().nextAll('ul').slideToggle();
+
+			}
 		},
-		del : function(id, tagName, uri){
-			$('#jqttModal #modalLabel').text("Delete tag ");
-			$('#jqttModal .modal-body').html(" <br>\n\
+		del :{
+			define: function(id, tagName, uri){
+				$('#jqttModal #modalLabel').text("Delete tag ");
+				$('#jqttModal .modal-body').html(" <br>\n\
 				<strong style='margin-right:5px'>Name:</strong> "+tagName+"<br>\n\
 				<strong style='margin-right:20px'>URI:</strong> "+uri+"<br><br>\n\
 			");
-			$('#jqttModalSave').removeClass('btn-success').addClass('btn-danger').text('Delete');
-			$('#jqttModalSave').on('click',function(){
-				JQTT.contextMenu.action.executeDel();
-				
-			});
-			$('#jqttModal').keypress(function(e){
-				if(e.which == 13){
+				$('#jqttModalSave').removeClass('btn-success').addClass('btn-danger').text('Delete');
+				$('#jqttModalSave').on('click',function(){
 					JQTT.contextMenu.action.executeDel();
-				}
-			});
-		},
-		executeDel : function(){
-			$('#jqttModal').unbind('keypress');
-			$('#jqttModalSave').unbind('click');
+				
+				});
+				$('#jqttModal').keypress(function(e){
+					if(e.which == 13){
+						JQTT.contextMenu.action.executeDel();
+					}
+				});
+				JQTT.contextMenu.action.focusNameInput();
+			},
+			execute : function(){
+				$('#jqttModal').unbind('keypress');
+				$('#jqttModalSave').unbind('click');
 			
-			console.log("Del confirmed");
-			$('#jqttModal').modal('hide');
+				console.log("Del confirmed");
+				$('#jqttModal').modal('hide');
+			}
+		},
+		focusNameInput : function(){
+				$('#jqttModal').on('shown', function () {
+					$('#jqttModal .modal-body .name').focus();
+				});
+			
 		}
 	};
 	
-	//Setting of jqTree changeable by user.
+	//Setting of jqTagTree changeable by user.
 	JQTT.globVar = {};
+	JQTT.globVar.rootUlTag;
+	JQTT.globVar.highlightId = -1;
 	JQTT.globVar.ajaxLoadTreePhpPath = '/php/loadFromDb.php';
 	JQTT.globVar.ajaxEditNodePhpPath = '/php/editNode.php';
 	JQTT.globVar.ajaxAddNodePhpPath = '/php/addNode.php';
 	JQTT.globVar.ajaxDelNodePhpPath = '/php/delNode.php';
 	JQTT.globVar.iconOpen = 'icon-plus';
 	JQTT.globVar.iconClose = 'icon-minus';
-	JQTT.globVar.iconNotOpen = 'icon-ban-circle';
+	JQTT.globVar.iconEmpty = 'icon-ban-circle';
 	JQTT.globVar.menuShown = false;
-	JQTT.globVar.highlightColor= '#AEFA7F';
+	JQTT.globVar.highlightAddColor= '#AEFA7F';
+	JQTT.globVar.highlightEditColor= '#AEFA7F';
+	JQTT.globVar.highlightDuration = 4000;
 	
 	/**
 	 * Methods callable by user.
@@ -333,6 +430,7 @@
 			//Gets id or class where tree will be iserted.
 			if(this.attr('id')== undefined) rootUlTag = '.' + this.attr('class');
 			else rootUlTag = '#' + this.attr('id');
+			JQTT.globVar.rootUlTag = rootUlTag;
 
 			JQTT.insertHtml.ulStructure(rootUlTag);
 			JQTT.insertHtml.modalStructure();
@@ -342,10 +440,7 @@
 			JQTT.renderTree.loadLeaf(0, rootUlTag);
 
 			//After click calls method providing showing, hiding and loading branches.
-			$(".liId").on("click",{
-				"this" : this, 
-				"rootUlTag" : rootUlTag
-			}, JQTT.renderTree.showBranch);
+			$(".liId").on("click",{}, JQTT.renderTree.prepare);
 		}
 	};
 
@@ -385,36 +480,44 @@
 				JQTT.globVar.iconOpen = options.iconOpen;
 			if(options.iconClose)
 				JQTT.globVar.iconClose = options.iconClose;
-			if(options.iconNotOpen)
-				JQTT.globVar.iconNotOpen = options.iconNotOpen;
+			if(options.iconEmpty)
+				JQTT.globVar.iconEmpty = options.iconEmpty;
 		},
-
-		/**
-		 * Called after click. Shows hidden branches if they are loaded  otherwise loads them.
-		 * @param param - parameters passed to function
+		
+		/*
+		 * Called after click. To call show branch.
+		 *
 		 * @return false - prevents closing parent branch
+		*/
+		prepare: function(){
+			JQTT.renderTree.showBranch(this);
+			return false;
+		},
+		/**
+		 * Shows hidden branches if they are loaded  otherwise loads them.
+		 * @param param - parameters passed to function. Aka which tag is root tag
 		 */
-		showBranch: function(param){
-			if($(this).children('ul').hasClass('treeEmpty')){
-				$(this).children('ul').removeClass('treeEmpty');
+		showBranch: function(clickedLiTag){
+			if($(clickedLiTag).children('ul').hasClass('treeEmpty')){
+				$(clickedLiTag).children('ul').removeClass('treeEmpty');
 			}
-			if($(this).children('div').children('i').hasClass(JQTT.globVar.iconNotOpen)){
-				window.location = $(this).children('div').children('a').attr('href');
+			//if node has "empty icon" then user will be redirected.
+			if($(clickedLiTag).children('div').children('i').hasClass(JQTT.globVar.iconEmpty)){
+				window.location = $(clickedLiTag).children('div').children('a').attr('href');
 				return false;
 			}
-			var children = $(this).children('ul').children('li');
+			var children = $(clickedLiTag).children('ul').children('li');
 
 			if(children.length==0){
 				//show loading.gif
-				$('#'+$(this).attr('id')).children('div').children('img').toggleClass('hidden visible');
+				$('#'+$(clickedLiTag).attr('id')).children('div').children('img').toggleClass('hidden visible');
 
 				//load and show data
-				JQTT.renderTree.loadLeaf($(this).attr('id'), param.data.rootUlTag);
+				JQTT.renderTree.loadLeaf($(clickedLiTag).attr('id'), JQTT.globVar.rootUlTag);
 			}else{ 
 				//toggles branch - show/hide
-				$('#'+$(this).attr("id")).children('div').children('i').toggleClass(JQTT.globVar.iconOpen + ' ' + JQTT.globVar.iconClose).parent().nextAll('ul').slideToggle();
+				$('#'+$(clickedLiTag).attr("id")).children('div').children('i').toggleClass(JQTT.globVar.iconOpen + ' ' + JQTT.globVar.iconClose).parent().nextAll('ul').slideToggle();
 			}
-			return false;	
 		},
 
 		/**
@@ -463,17 +566,23 @@
 					cell = JQTT.renderTree.changeTagNameTemplate(newTag, data[i]).prependTo($('#'+rootId).children('ul'));
 				} 
 
-				if(data[i].child>0){
+				if(data[i].children>0){
 					//shows "could be opened" sign if could be opened
 					cell.append('<ul></ul>').children('ul').addClass('treeBranch treeEmpty').css('display', 'none').prev().find('a:first').before('<i></i>').prev().addClass(JQTT.globVar.iconOpen).parent().parent().show();
 
 				}else
 					//shows "couldn't be opened" sign
-					cell.find('a:first').before('<i></i>').prev().addClass(JQTT.globVar.iconNotOpen).parent().parent().show();
+					cell.find('a:first').before('<i></i>').prev().addClass(JQTT.globVar.iconEmpty).parent().parent().show();
 			}
 			//shows just loaded data
 			$('#'+rootId).children('div').children('i').toggleClass(JQTT.globVar.iconOpen + ' ' + JQTT.globVar.iconClose).parent().nextAll('ul').slideToggle();
 			//hide loading.gif
+			if(JQTT.globVar.highlightId > -1){
+				$('a[data-jqtt-id = '+ JQTT.globVar.highlightId +']').effect("highlight", {
+					color: JQTT.globVar.highlightAddColor
+				}, JQTT.globVar.highlightDuration);
+				JQTT.globVar.highlightId = -1;
+			}
 			$('#'+rootId).children('div').children('img').toggleClass('hidden visible');
 		},
 
