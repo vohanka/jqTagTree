@@ -15,12 +15,10 @@ define("JQTT_TAG_TABLE_NAME", "name");
 define("JQTT_TAG_TABLE_URI", "uri");
 
 define("JQTT_CONNECTIONS_TABLE_ID", "id");
-define("JQTT_CONNECTIONS_TABLE_OBJECT", "object_id");
-define("JQTT_CONNECTIONS_TABLE_SUBJECT", "subject_id");
+define("JQTT_CONNECTIONS_TABLE_PARENT", "object_id");
+define("JQTT_CONNECTIONS_TABLE_CHILD", "subject_id");
 define("JQTT_CONNECTIONS_TABLE_PREDICATE", "predicate_id");
 
-//define ("HOME", "http://");
+define("JQTT_CONNECTIONS_TABLE_DEFAULT_PREDICATE", 2);
 
-//max lenght of input in form
-define("FORM_LENGTH", "50");
 ?>
