@@ -62,12 +62,12 @@ class Db{
 		return $this->numRows($vysledek);
 	}
 	//Funkce vracející jeden řádek ze zadaného dotazu
-	private function readLine($dotaz){
+	public function readLine($dotaz){
 		$vysledek = $this->query($dotaz);
 		return $this->fetchArray($vysledek);
 	}
 	//Funkce vracející dvojrozměrné pole řádek v databázi ze zadaného dotazu
-	private function readFromDb($dotaz){
+	public function readFromDb($dotaz){
 		$vsechnyRadek = NULL;
 		$vysledek = $this->query($dotaz);
 		$pocetRadek = $this->numRows($vysledek);
@@ -114,6 +114,20 @@ class Db{
 		return $this->query("INSERT INTO " . JQTT_CONNECTIONS_TABLE . " ( " . JQTT_CONNECTIONS_TABLE_PARENT . ", ". JQTT_CONNECTIONS_TABLE_CHILD .", ". JQTT_CONNECTIONS_TABLE_PREDICATE .") 
 																	VALUES ('" . $escParent . "','" . $escChild . "','".$predicate."') ");
 	}
+	
+	public function delTag($deleteTag, $deleteConn){
+		echo $this->query("DELETE FROM " . JQTT_TAG_TABLE . " WHERE ".JQTT_TAG_TABLE_ID ." IN (".implode(', ', $deleteTag).")");
+		echo $this->query("DELETE FROM " . JQTT_CONNECTIONS_TABLE . " WHERE ".JQTT_CONNECTIONS_TABLE_ID ." IN (".implode(', ', $deleteConn).")");
+		
+	}
+	public function delTag_findParentConnection($id){
+		return $this->readLine("SELECT " . JQTT_CONNECTIONS_TABLE_ID . " FROM " . JQTT_CONNECTIONS_TABLE . " WHERE " . JQTT_CONNECTIONS_TABLE_CHILD . " = " . $id);
+	}
+	
+	public function delTag_findChildrenConnection($id){
+		return $this->readFromDb("SELECT * FROM " . JQTT_CONNECTIONS_TABLE . " WHERE " . JQTT_CONNECTIONS_TABLE_PARENT . " = " . $id);
+	}
+	
 	
 }
 

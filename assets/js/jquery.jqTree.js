@@ -278,11 +278,12 @@
 				var changeData;
 				
 				//if change unbind submiting and make array
+				//TODO make constant for name and uri length
 				if(name != "" && uri != "" && name.length<100 && uri.length<200){
 					$('#jqttModal').unbind('keypress');
 					$('#jqttModalSave').unbind('click');
 					
-					changeData = new Array(id, name, uri, 1);
+					changeData = new Array(id, name, uri);
 				}else{
 					//hide loading gif, show errors
 					$('#jqttModal .modal-footer img').toggleClass('visible hidden');
@@ -369,22 +370,42 @@
 			");
 				$('#jqttModalSave').removeClass('btn-success').addClass('btn-danger').text('Delete');
 				$('#jqttModalSave').on('click',function(){
-					JQTT.contextMenu.action.executeDel();
+					JQTT.contextMenu.action.del.execute(id);
 				
 				});
 				$('#jqttModal').keypress(function(e){
 					if(e.which == 13){
-						JQTT.contextMenu.action.executeDel();
+						JQTT.contextMenu.action.del.execute(id);
 					}
 				});
-				JQTT.contextMenu.action.focusNameInput();
 			},
-			execute : function(){
+			execute : function(id){
+				$('#jqttModal .modal-footer img').toggleClass('visible hidden');
 				$('#jqttModal').unbind('keypress');
 				$('#jqttModalSave').unbind('click');
 			
-				console.log("Del confirmed");
+				$.ajax({
+					url: JQTT.globVar.ajaxDelNodePhpPath,
+					data: {
+						data : id
+					},
+					dataType : 'JSON',
+					success : function(data){ 
+						console.log(data);
+						JQTT.contextMenu.action.del.redraw(id);
+						$('#jqttModal').modal('hide');
+					},
+					error:function(data){
+						console.log("ERROR deleting from context menu!");
+						console.log(data.responseText);
+					}
+				});
+						JQTT.contextMenu.action.del.redraw(id);
 				$('#jqttModal').modal('hide');
+						$('#jqttModal .modal-footer img').removeClass('visible').addClass('hidden');
+			},
+			redraw : function(id){
+				$('#'+id).slideUp(3000,function(){$(this).remove()});
 			}
 		},
 		focusNameInput : function(){
@@ -421,7 +442,6 @@
 		 * @param options - settings posted by user
 		 */
 		run : function( options ) {
-
 			//Saving changes posted by user.
 			if(options)
 				JQTT.renderTree.changeSetings(options);
@@ -441,6 +461,8 @@
 
 			//After click calls method providing showing, hiding and loading branches.
 			$(".liId").on("click",{}, JQTT.renderTree.prepare);
+			$(".treeBranch").sortable();
+
 		}
 	};
 
