@@ -2,7 +2,9 @@
 
 
 /*
-	Plugin styles
+	-----------------------------------------------
+	|          jqTagTree Plugin styles            | 
+	-----------------------------------------------
 */
 #jqttModal textarea{
 	width: 516px;
@@ -10,6 +12,10 @@
 }
 #jqttModal input{
 	width: 258px;
+}
+
+.jqttUriWidth{
+	width: 200px
 }
 
 .headlineNotify{
@@ -20,7 +26,6 @@
 	margin-top:20px;
 	margin-right: 20px;
 }
-
 
 #JqttModal .modal-body strong{
 	display: block;
@@ -33,7 +38,6 @@
 .hidden{
 	visibility: hidden;
 }
-
 
 i {
 	margin-right:3px; 
@@ -76,7 +80,9 @@ span.contextMenu span {
 
 
 /*
-	Context menu styles
+	-----------------------------------------------
+	|             Context menu styles             | 
+	-----------------------------------------------
 */
 .contextMenuPlugin {
   -webkit-user-select: none;

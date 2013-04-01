@@ -1,11 +1,26 @@
 <?php
+//
+// +----------------------------------------------------------+
+// | Author  : Libor Vohanka                                  |
+// | Project : Manipulation with tree of tags using jQuery    |
+// | Year    : 2013	                                          |
+// | File    : /php/delNode.php                               |
+// +----------------------------------------------------------+
+// 
+// Deleting of tag and it's children in modal using AJAX .
+//
 
 include 'jqTagTree.db.class.php';
 include '../config/constants.php';
 
 $connectDb = Db::getInstance();
 
-//finds place to insert in array with help of bysection algorithm
+/*
+ * Finds place to insert in array with help of bysection algorithm.
+ * 
+ * @param $array - sorted array of ids
+ * @param $input - input to add to sorted array
+ */
 function sortAndAdd($array, $input) {
 	$lower = 0;
 	$upper = count($array);
