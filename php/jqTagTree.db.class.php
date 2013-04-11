@@ -118,7 +118,7 @@ class Db{
 	 *  Query for loading first level of tag tree.
 	 */
 	public function loadFirstLevelFromDb(){
-		$record = $this->readFromDb('SELECT a.'. JQTT_TAG_TABLE_ID.', a.'. JQTT_TAG_TABLE_NAME .', a.'. JQTT_TAG_TABLE_URI .', count(c.'. JQTT_TAG_TABLE_ID.') AS children 
+		$record = $this->readFromDb('SELECT a.'. JQTT_TAG_TABLE_ID.', a.'. JQTT_TAG_TABLE_NAME .' as name, a.'. JQTT_TAG_TABLE_URI .', count(c.'. JQTT_TAG_TABLE_ID.') AS children 
 			FROM '. JQTT_TAG_TABLE .' a 
 			LEFT JOIN ' . JQTT_CONNECTIONS_TABLE . ' c ON a.'. JQTT_TAG_TABLE_ID.'=c.'. JQTT_CONNECTIONS_TABLE_PARENT.' WHERE a.'. JQTT_TAG_TABLE_ID .' NOT IN (SELECT 	b.'. JQTT_CONNECTIONS_TABLE_CHILD .'
 			FROM '. JQTT_CONNECTIONS_TABLE .' b) GROUP BY a.'. JQTT_TAG_TABLE_ID .' order by a.'.JQTT_TAG_TABLE_NAME);
@@ -131,7 +131,7 @@ class Db{
 	 */
 	public function loadNextLevelFromDb($id){
 		$id = $this->escape($id);
-		$record = $this->readFromDb('SELECT a.'. JQTT_TAG_TABLE_ID.', a.'. JQTT_TAG_TABLE_NAME .', a.'. JQTT_TAG_TABLE_URI .', count(c.'. JQTT_TAG_TABLE_ID.') AS children
+		$record = $this->readFromDb('SELECT a.'. JQTT_TAG_TABLE_ID.', a.'. JQTT_TAG_TABLE_NAME .' as name, a.'. JQTT_TAG_TABLE_URI .', count(c.'. JQTT_TAG_TABLE_ID.') AS children
 		FROM '. JQTT_TAG_TABLE .' a 
 		LEFT JOIN ' . JQTT_CONNECTIONS_TABLE . ' c ON a.'. JQTT_TAG_TABLE_ID.'=c.'. JQTT_CONNECTIONS_TABLE_PARENT.'	WHERE a.'. JQTT_TAG_TABLE_ID .' IN (SELECT b.'. JQTT_CONNECTIONS_TABLE_CHILD .' 
 		FROM '. JQTT_CONNECTIONS_TABLE .' b WHERE b.'.JQTT_CONNECTIONS_TABLE_PARENT.'='.$id.') GROUP BY a.'.JQTT_TAG_TABLE_NAME);

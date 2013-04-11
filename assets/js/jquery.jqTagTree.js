@@ -22,12 +22,13 @@
 	
 	//Setting of jqTagTree global variables changeable by user.
 	JQTT.globUserVar = {};
-	JQTT.globUserVar.ajaxLoadTreePhpPath = '/php/loadFromDb.php';
-	JQTT.globUserVar.ajaxEditNodePhpPath = '/php/editNode.php';
-	JQTT.globUserVar.ajaxAddNodePhpPath = '/php/addNode.php';
-	JQTT.globUserVar.ajaxAddNodeLinkPhpPath = '/php/addLink.php';
-	JQTT.globUserVar.ajaxDelNodePhpPath = '/php/delNode.php';
-	JQTT.globUserVar.ajaxLoadPredicatesPhpPath = '/php/loadPredicates.php';
+	JQTT.globUserVar.ajaxLoadTreePhpPath = 'php/loadFromDb.php';
+	JQTT.globUserVar.ajaxEditNodePhpPath = 'php/editNode.php';
+	JQTT.globUserVar.ajaxAddNodePhpPath = 'php/addNode.php';
+	JQTT.globUserVar.ajaxAddNodeLinkPhpPath = 'php/addLink.php';
+	JQTT.globUserVar.ajaxDelNodePhpPath = 'php/delNode.php';
+	JQTT.globUserVar.ajaxLoadPredicatesPhpPath = 'php/loadPredicates.php';
+	JQTT.globUserVar.iconLoadingPath = 'assets/images/loading.gif';
 	JQTT.globUserVar.iconOpen = 'icon-plus';
 	JQTT.globUserVar.iconClose = 'icon-minus';
 	JQTT.globUserVar.iconEmpty = 'icon-ban-circle';
@@ -678,7 +679,7 @@
 		ulStructure: function(rootUlTag){
 			var toBeAdded = "<li style='display: none' class='tagNameTemplate liId'>\n\
 								<div style='position: relative'><a href='#' class='showUls name' ></a><span class='jqttNumOfPredic'></span> \n\
-								<img src='/assets/images/loading.gif' class='hidden'></div></li>";
+								<img src='"+ JQTT.globUserVar.iconLoadingPath +"' class='hidden'></div></li>";
 			$(rootUlTag).append(toBeAdded);
 		},
 		
@@ -693,7 +694,7 @@
 								</div>\n\
 								<div class='modal-body'></div>\n\
 								<div class='modal-footer'>\n\
-									<img src='/assets/images/loading.gif' class='hidden'>\n\
+									<img src='"+ JQTT.globUserVar.iconLoadingPath +"' class='hidden'>\n\
 									<button class='btn' id='jqttModalCancel' data-dismiss='modal' aria-hidden='true'>Cancel</button>\n\
 									<button class='btn btn-success' id='jqttModalSave'>Save changes</button>\n\
 								</div>\n\
