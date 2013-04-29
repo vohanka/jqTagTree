@@ -16,16 +16,16 @@
 define ("JQTT_HOST", "localhost");
 define ("JQTT_USER", "root"); 
 define ("JQTT_PASS", "default");
-define ("JQTT_DB", "test_call_for_papers");
+define ("JQTT_DB", "vohanka_jqTagTree");
 
 // table names
-define("JQTT_TAG_TABLE", "cfp_automatic_tags");
-define("JQTT_CONNECTIONS_TABLE", "cfp_automatic_tags_triples");
-define("JQTT_PREDICATE_TABLE", "cfp_predicates");
+define("JQTT_TAG_TABLE", "tags");
+define("JQTT_CONNECTIONS_TABLE", "connections");
+define("JQTT_PREDICATE_TABLE", "predicates");
 
 //column names in tag table
 define("JQTT_TAG_TABLE_ID", "id");
-define("JQTT_TAG_TABLE_NAME", "name");
+define("JQTT_TAG_TABLE_NAME", "label_en");
 define("JQTT_TAG_TABLE_URI", "uri");
 
 // column names in connections table
@@ -40,5 +40,5 @@ define("JQTT_PREDICATE_TABLE_URI", "uri");
 define("JQTT_PREDICATE_TABLE_ID", "id");
 
 // Which predicate id should be default (in adding tag called as "child")
-define("JQTT_DEFAULT_PREDICATE_ID", 2);
+define("JQTT_DEFAULT_PREDICATE_ID", 1);
 ?>
