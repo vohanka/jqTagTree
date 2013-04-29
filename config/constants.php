@@ -16,7 +16,7 @@
 define ("JQTT_HOST", "localhost");
 define ("JQTT_USER", "root"); 
 define ("JQTT_PASS", "default");
-define ("JQTT_DB", "vohanka_jqTagTree");
+define ("JQTT_DB", "jqtagtree");
 
 // table names
 define("JQTT_TAG_TABLE", "tags");
