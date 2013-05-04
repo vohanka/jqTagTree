@@ -18,3 +18,7 @@ návod k instalaci
 - proveďte import souboru testData/jqTagTreeDatabase.sql do databáze vytvořené v předchozím kroku 
 - (lze změnit jména tabulek i sloupcu databáze v souboru config/constants.php)
 - spusťte index.php v prohlížeči
+
+Dokumentace je umístěna ve složce doc a pouze v českém jazyce.
+Documentation is provided only in Czech language.
+[Licence](https://github.com/vohanka/jqTagTree/blob/master/licence.md) 
