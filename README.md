@@ -7,7 +7,7 @@ how to install
 - [Download plugin](https://github.com/vohanka/jqTagTree/archive/master.zip) 
 - after download move plugin to folder with working php server
 - create database jqtagtree
-- import file testData/jqTagTreeDatabase.sql into database jqtagtree created in previous stap  
+- import file testData/jqTagTreeDatabase.sql into database jqtagtree created in previous step  
 - (you can have different name of database - changable in config/constants.php)
 - run index.php in your web browser
 
